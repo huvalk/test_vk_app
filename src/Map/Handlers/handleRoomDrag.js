@@ -6,7 +6,7 @@ export const handleRoomDrag = (e, {stageRef, createCorners, createGuides}) => {
         stageRef.current,
         findCorners);
     let itemBounds = getObjectSnappingEdges(e.target);
-    let guides = getGuides(lineGuideStops, itemBounds);
+    let guides = getGuides(lineGuideStops, itemBounds, 'center');
 
     if (!guides.length) {
         createCorners(e.target);

@@ -1,45 +1,12 @@
 const GUIDELINE_OFFSET = 5;
 
-export function getGuides(lineGuideStops, itemBounds) {
-    let resultV = [];
-    let resultH = [];
-
-    lineGuideStops.vertical.forEach((lineGuide) => {
-        itemBounds.vertical.forEach((itemBound) => {
-            if (itemBound.snap !== 'center') {
-                const diff = Math.abs(lineGuide - itemBound.guide);
-                if (diff < GUIDELINE_OFFSET) {
-                    resultV.push({
-                        lineGuide: lineGuide,
-                        diff: diff,
-                        snap: itemBound.snap,
-                        offset: itemBound.offset,
-                    });
-                }
-            }
-        });
-    });
-
-    lineGuideStops.horizontal.forEach((lineGuide) => {
-        itemBounds.horizontal.forEach((itemBound) => {
-            if (itemBound.snap !== 'center') {
-                const diff = Math.abs(lineGuide - itemBound.guide);
-                if (diff < GUIDELINE_OFFSET) {
-                    resultH.push({
-                        lineGuide: lineGuide,
-                        diff: diff,
-                        snap: itemBound.snap,
-                        offset: itemBound.offset,
-                    });
-                }
-            }
-        });
-    });
-
+export function getGuides(lineGuideStops, itemBounds, ...exceptionList) {
     let guides = [];
+    const resultV = findStop(lineGuideStops, itemBounds, 'vertical', exceptionList);
+    const resultH = findStop(lineGuideStops, itemBounds, 'horizontal', exceptionList);
+    const minV = resultV.sort((a, b) => a.diff - b.diff)[0];
+    const minH = resultH.sort((a, b) => a.diff - b.diff)[0];
 
-    let minV = resultV.sort((a, b) => a.diff - b.diff)[0];
-    let minH = resultH.sort((a, b) => a.diff - b.diff)[0];
     if (minV) {
         guides.push({
             lineGuide: minV.lineGuide,
@@ -58,3 +25,26 @@ export function getGuides(lineGuideStops, itemBounds) {
     }
     return guides;
 }
+
+function findStop(lineGuideStops, itemBounds, direction, exceptionList) {
+    let result = [];
+
+    lineGuideStops[direction].forEach((lineGuide) => {
+        itemBounds[direction].forEach((itemBound) => {
+            if (! exceptionList.includes(itemBound.snap)) {
+                const diff = Math.abs(lineGuide - itemBound.guide);
+                if (diff < GUIDELINE_OFFSET) {
+                    result.push({
+                        lineGuide: lineGuide,
+                        diff: diff,
+                        snap: itemBound.snap,
+                        offset: itemBound.offset,
+                    });
+                }
+            }
+        });
+    });
+
+    return result;
+}
+

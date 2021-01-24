@@ -2,7 +2,14 @@ import React from 'react';
 import { Stage, Layer, Rect, Line, Circle, Group } from 'react-konva';
 import "./GuideLines";
 import {chunk, isTouchEnabled} from "./Common";
-import {handleClick, handleLayerDrag, handleLayerDragEnd, handlePolyClick, handleWheel} from "./Handlers";
+import {
+    handleClick,
+    handleCornerDrag,
+    handleLayerDrag,
+    handleLayerDragEnd,
+    handlePolyClick,
+    handleWheel
+} from "./Handlers";
 
 const INITIAL_RECT = [];
 const LAYER = React.createRef();
@@ -25,7 +32,6 @@ const Map = () => {
         setCorners(newPoints);
     }
     function createGuides(guides) {
-        console.log(guides);
         let newGuideLines = [];
 
         guides.forEach((lg) => {
@@ -71,8 +77,17 @@ const Map = () => {
     const handleLayerDragEndDep = {
         setGuideLines,
     };
-    const handleCornerDragDep = {
+    const handleCornerDragDep = (pointIndex) => {
+        return {
+            rectIndex: currentPolyId,
+            pointIndex,
+            stageRef,
+            rects,
+            setRects,
+            createGuides
+        };
     };
+
     const handlePolyClickDep = {
         setCurrentPolyId,
         createCorners,
@@ -132,7 +147,7 @@ const Map = () => {
                             fill={'red'}
                             name={'corner'}
                             // draggable
-                            // onDragMove={(e) => handleCornerDrag(e, handleCornerDragDep)}
+                            // onDragMove={(e) => handleCornerDrag(e, handleCornerDragDep(i))}
                         />
                     ))}
                 </Group>

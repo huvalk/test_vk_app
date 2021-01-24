@@ -17,7 +17,6 @@ const handleLayerDrag = (e, dependencies) => {
 };
 
 const handleLayerDragEnd = (e, {setGuideLines}) => {
-    console.log(setGuideLines);
     setGuideLines([]);
 };
 
