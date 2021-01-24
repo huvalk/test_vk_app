@@ -2,7 +2,7 @@ import React from 'react';
 import Konva from 'konva'
 import { Stage, Layer, Rect, Line, Circle, Group, Transformer } from 'react-konva';
 import {getObjectSnappingEdges, getGuides, getCenterGuides, getLineGuideStops, getLineGuideCenterStops} from "./GuideLines";
-import {chunk} from "./Common";
+import {chunk, isTouchEnabled} from "./Common";
 
 const INITIAL_RECT = [];
 const LAYER = React.createRef();
@@ -19,8 +19,26 @@ const Map = () => {
         if (! (e.target instanceof Konva.Stage)) {
             return;
         }
-        const x = (e.evt.pageX - stage.x()) / stage.scaleX();
-        const y = (e.evt.pageY - stage.y()) / stage.scaleY();
+
+        let x = 0;
+        let y = 0;
+
+        console.log(e.evt);
+
+        if (isTouchEnabled() && e.evt.type === 'touchend' && e.evt.changedTouches.length !== 0) {
+            console.log('touch');
+            x = (e.evt.changedTouches[0].pageX - stage.x()) / stage.scaleX();
+            y = (e.evt.changedTouches[0].pageY - stage.y()) / stage.scaleY();
+        } else if (!isTouchEnabled() && e.evt.type === 'mouseup') {
+            console.log('mouse');
+            x = (e.evt.pageX - stage.x()) / stage.scaleX();
+            y = (e.evt.pageY - stage.y()) / stage.scaleY();
+        } else {
+            console.log('return');
+            return;
+        }
+        console.log('continue');
+
         const width = Math.floor(50 + Math.random() * 50);
         const height = Math.floor(50 + Math.random() * 50);
 
@@ -231,7 +249,6 @@ const Map = () => {
                 onDragMove={(e) => handleLayerDrag(e, currentPolyId)}
                 onDragEnd={handleLayerDragEnd}
                 ref={LAYER}
-                className={map}
                 >
                 {rects.map((rect) => (
                     <Line
@@ -271,8 +288,8 @@ const Map = () => {
                             radius={10}
                             fill={'red'}
                             name={'corner'}
-                            draggable
-                            onDragMove={(e) => handleCornerDrag(e, currentPolyId, i)}
+                            // draggable
+                            // onDragMove={(e) => handleCornerDrag(e, currentPolyId, i)}
                         />
                     ))}
                 </Group>
