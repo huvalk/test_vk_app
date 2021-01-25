@@ -13,7 +13,7 @@ export const handleRoomDrag = (e, {stageRef, createCorners, createGuides}) => {
         return;
     }
 
-    createGuides(guides);
+    createGuides(guides, stageRef);
 
     let absPos = e.target.absolutePosition();
     guides.forEach((lg) => {

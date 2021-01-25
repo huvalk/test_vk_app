@@ -10,9 +10,10 @@ import {
     handlePolyClick,
     handleWheel
 } from "./Handlers";
+import {createGuides} from "./GuideLines";
+import {createCorners} from "./Corners";
 
 const INITIAL_RECT = [];
-const LAYER = React.createRef();
 
 const Map = () => {
     const [rects, setRects] = React.useState(INITIAL_RECT);
@@ -21,49 +22,6 @@ const Map = () => {
     const [currentPolyId, setCurrentPolyId] = React.useState(undefined);
     let stageRef = React.createRef();
 
-    function createCorners(polygon) {
-        let newPoints = [];
-        chunk(polygon.points(), 2)
-            .map((corner) => {
-                newPoints.push(corner[0] + polygon.x());
-                newPoints.push(corner[1] + polygon.y());
-            });
-
-        setCorners(newPoints);
-    }
-    function createGuides(guides) {
-        let newGuideLines = [];
-
-        guides.forEach((lg) => {
-            if (lg.orientation === 'H') {
-                let line = {
-                    id: newGuideLines.length,
-                    x: 0,
-                    y: lg.lineGuide - stageRef.current.y(),
-                    points: [-6000, 0, 6000, 0],
-                    stroke: 'rgb(0, 161, 255)',
-                    strokeWidth: 1,
-                    name: 'guid-line',
-                    dash: [4, 6],
-                };
-                newGuideLines.push(line);
-            } else if (lg.orientation === 'V') {
-                let line = {
-                    id: newGuideLines.length,
-                    x: lg.lineGuide - stageRef.current.x(),
-                    y: 0,
-                    points: [0, -6000, 0, 6000],
-                    stroke: 'rgb(0, 161, 255)',
-                    strokeWidth: 1,
-                    name: 'guid-line',
-                    dash: [4, 6],
-                };
-                newGuideLines.push(line);
-            }
-        });
-
-        setGuideLines(newGuideLines);
-    }
 
     const handleClickDep = {
         rects,
@@ -71,8 +29,8 @@ const Map = () => {
     };
     const handleLayerDragDep = {
         stageRef,
-        createCorners,
-        createGuides,
+        createCorners: (polygon) => createCorners(polygon, setCorners),
+        createGuides: (guides, stageRef) => createGuides(guides, setGuideLines, stageRef),
     };
     const handleLayerDragEndDep = {
         setGuideLines,
@@ -84,13 +42,12 @@ const Map = () => {
             stageRef,
             rects,
             setRects,
-            createGuides
+            createGuides: (guides, stageRef) => createGuides(guides, setGuideLines, stageRef),
         };
     };
-
     const handlePolyClickDep = {
         setCurrentPolyId,
-        createCorners,
+        createCorners: (polygon) => createCorners(polygon, setCorners),
     };
 
 
@@ -106,7 +63,6 @@ const Map = () => {
             <Layer
                 onDragMove={(e) => handleLayerDrag(e, handleLayerDragDep)}
                 onDragEnd={(e) => handleLayerDragEnd(e, handleLayerDragEndDep)}
-                ref={LAYER}
                 >
                 {rects.map((rect) => (
                     <Line
